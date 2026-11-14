@@ -1,4 +1,6 @@
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 /* 枠線の太さも含めて、width や height の大きさにする */
@@ -34,7 +36,7 @@ h1 {
   align-items: center;
   justify-content: center;
   width: 100%;
-  grid-template-columns: 1fr 600px 1fr;
+  grid-template-columns: 1fr minmax(0, 600px) 1fr;
 }
 .controls {
   grid-row: 1/2;
@@ -121,46 +123,47 @@ aspect-ratio: 1 / 1: 高さを幅と同じにする。幅が変わっても正�
 #first-base,
 #second-base,
 #third-base {
-  height: 30px;
-  width: 30px;
+  width: 5.67%;
+  aspect-ratio: 1/1;
   background: white;
   z-index: 2;
   border: 2px solid black;
 }
+/* 位置の指定も、px を 元の数字 ÷ 600 の%に置き換える */
 #first-base {
   position: absolute;
   transform: rotate(45deg);
-  top: 390px;
-  right: 129px;
+  top: 65%;
+  right: 21.5%;
 }
 #second-base {
   position: absolute;
   transform: rotate(45deg);
-  top: 236px;
+  top: 39.33%;
 }
 #third-base {
   position: absolute;
   transform: rotate(45deg);
-  top: 389px;
-  left: 129px;
+  top: 64.83%;
+  left: 21.5%;
 }
 #home-base {
   background: white;
   position: absolute;
   z-index: 2;
-  width: 40px;
-  height: 40px;
+  width: 7.33%;
+  aspect-ratio: 1/1;
   clip-path: polygon(0% 0%, 100% 0%, 100% 50%, 50% 100%, 0% 50%);
-  top: 539px;
+  top: 89.83%;
   border: 2px solid black;
 }
 .pitcher {
-  height: 10px;
-  width: 40px;
+  height: 2.33%;
+  width: 7.33%;
   background: white;
   position: absolute;
   z-index: 2;
-  top: 395px;
+  top: 65.83%;
   border: 2px solid black;
 }
 .scoreboard {
@@ -349,5 +352,27 @@ aspect-ratio: 1 / 1: 高さを幅と同じにする。幅が変わっても正�
   100% {
     transform: scale(1);
     opacity: 1;
+  }
+}
+@media (max-width: 1100px) {
+  .game-container {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+  .scoreboard {
+    grid-row: 1;
+    grid-column: 1 / 2;
+    align-self: start;
+    justify-self: center;
+  }
+  .field {
+    grid-row: 2;
+    grid-column: 1 / 2;
+  }
+  .controls {
+    grid-row: 3;
+    grid-column: 1 / 2;
+    align-self: start;
+    justify-self: center;
   }
 }
