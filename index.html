@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script src="js/jquery-2.1.3.min.js"></script>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <title>Baseball Game</title>
+  </head>
+  <body>
+    <header>
+      <h1>Baseball Game</h1>
+    </header>
+    <main>
+      <div id="result"><h2>Play Ball!!</h2></div>
+      <div class="game-container">
+        <div class="controls">
+          <button id="swing">スイング</button>
+          <button id="see">見送る</button>
+          <button id="restart">もう一度プレーする</button>
+        </div>
+        <div class="field">
+          <div class="infield"></div>
+          <div class="outfield"></div>
+          <div id="first-base"></div>
+          <div id="second-base"></div>
+          <div id="third-base"></div>
+          <div id="home-base"></div>
+          <div class="pitcher"></div>
+        </div>
+        <div class="scoreboard">
+          <div id="inning">1回表</div>
+
+          <div class="match-score">
+            YOU <span id="score">0</span>
+            -
+            <span id="pc-score">0</span> PC
+          </div>
+          <div id="bso">
+            <div class="ball">
+              <span class="bso">B</span>
+              <div id="b-ciecles1"></div>
+              <div id="b-ciecles2"></div>
+              <div id="b-ciecles3"></div>
+            </div>
+            <div class="strike">
+              <span class="bso">S</span>
+              <div id="s-ciecles1"></div>
+              <div id="s-ciecles2"></div>
+            </div>
+            <div class="out">
+              <span class="bso">O</span>
+              <div id="o-ciecles1"></div>
+              <div id="o-ciecles2"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      let ball = 0;
+      let strike = 0;
+      let out = 0;
+      let first = false;
+      let second = false;
+      let third = false;
+      let score = 0;
+      let pcScore = 0;
+      let inning = 1;
+      let isPlayer = true;
+
+      function resetCount() {
+        ball = 0;
+        strike = 0;
+        out = 0;
+
+        first = false;
+        second = false;
+        third = false;
+
+        $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+        $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css("background-color", "");
+        $("#o-ciecles1, #o-ciecles2").css("background-color", "");
+
+        $("#first-base, #second-base, #third-base").css("background-color", "");
+      }
+      function startPcAttack() {
+        isPlayer = false;
+        resetCount();
+
+        $("#inning").html(inning + "回裏");
+        $("#result").html("<h2>PCの攻撃！</h2>");
+        $("#swing, #see").hide();
+
+        let pcFirst = false;
+        let pcSecond = false;
+        let pcThird = false;
+
+        const timer = setInterval(function () {
+          const result = Math.ceil(Math.random() * 100);
+
+          if (result <= 20) {
+            $("#result").html("<h2>PC：ヒット！</h2>");
+
+            if (pcThird) {
+              pcScore++;
+            }
+
+            pcThird = pcSecond;
+            pcSecond = pcFirst;
+            pcFirst = true;
+          } else if (result <= 30) {
+            $("#result").html("<h2>PC：ツーベース！</h2>");
+
+            if (pcThird) pcScore++;
+            if (pcSecond) pcScore++;
+
+            pcThird = pcFirst;
+            pcSecond = true;
+            pcFirst = false;
+          } else if (result <= 33) {
+            $("#result").html("<h2>PC：スリーベース！</h2>");
+
+            if (pcFirst) pcScore++;
+            if (pcSecond) pcScore++;
+            if (pcThird) pcScore++;
+
+            pcFirst = false;
+            pcSecond = false;
+            pcThird = true;
+          } else if (result <= 40) {
+            $("#result").html("<h2>PC：ホームラン！</h2>");
+
+            pcScore++;
+
+            if (pcFirst) pcScore++;
+            if (pcSecond) pcScore++;
+            if (pcThird) pcScore++;
+
+            pcFirst = false;
+            pcSecond = false;
+            pcThird = false;
+          } else {
+            out++;
+
+            $("#result").html("<h2>PC：アウト！ " + out + "アウト</h2>");
+
+            if (out == 1) {
+              $("#o-ciecles1").css("background-color", "red");
+            }
+
+            if (out == 2) {
+              $("#o-ciecles2").css("background-color", "red");
+            }
+          }
+
+          $("#pc-score").html(pcScore);
+
+          if (out == 3) {
+            clearInterval(timer);
+            setTimeout(function () {
+              if (inning == 3) {
+                if (score > pcScore) {
+                  $("#result").html('<h2 class="win">YOU WIN!!</h2>');
+                  confetti({
+                    particleCount: 150,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                  });
+                } else if (score == pcScore) {
+                  $("#result").html("<h2>DRAW!</h2>");
+                } else {
+                  $("#result").html("<h2>YOU LOSE...</h2>");
+                }
+
+                $("#restart").show();
+                return;
+              }
+
+              inning++;
+              isPlayer = true;
+              resetCount();
+
+              $("#inning").html(inning + "回表");
+              $("#result").html("<h2>YOUR TURN!</h2>");
+              $("#swing, #see").show();
+            }, 1500);
+          }
+        }, 1000);
+      }
+
+      $("#swing").on("click", function () {
+        const randomresult = Math.random();
+        const result = Math.ceil(randomresult * 100);
+        if (out == 3 || isPlayer == false) {
+          return;
+        }
+
+        if (result >= 1 && result <= 20) {
+          $("#result").html('<h2 class="one">ヒット</h2>');
+          strike = 0;
+          ball = 0;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (third == true) {
+            third = false;
+            $("#third-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (second == true) {
+            third = true;
+            $("#third-base").css("background-color", "yellow");
+            second = false;
+            $("#second-base").css("background-color", "");
+          }
+          if (first == true) {
+            second = true;
+            $("#second-base").css("background-color", "yellow");
+          }
+
+          $("#first-base").css("background-color", "yellow");
+          first = true;
+        }
+
+        if (result >= 21 && result <= 30) {
+          $("#result").html('<h2 class="double">ツーベース</h2>');
+          strike = 0;
+          ball = 0;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (third == true) {
+            third = false;
+            $("#third-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (second == true) {
+            second = false;
+            $("#second-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+
+          if (first == true) {
+            $("#third-base").css("background-color", "yellow");
+            third = true;
+            first = false;
+            $("#first-base").css("background-color", "");
+          }
+          $("#second-base").css("background-color", "yellow");
+          second = true;
+        }
+        if (result >= 31 && result <= 33) {
+          $("#result").html('<h2 class="triple">スリーベース</h2>');
+          strike = 0;
+          ball = 0;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (third == true) {
+            third = false;
+            $("#third-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (second == true) {
+            second = false;
+            $("#second-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (first == true) {
+            first = false;
+            $("#first-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          $("#third-base").css("background-color", "yellow");
+          third = true;
+        }
+        if (result >= 34 && result <= 40) {
+          $("#result").html('<h2 class="homerun">HOME RUN!!</h2>');
+          strike = 0;
+          ball = 0;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (third == true) {
+            third = false;
+            $("#third-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (second == true) {
+            second = false;
+            $("#second-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          if (first == true) {
+            first = false;
+            $("#first-base").css("background-color", "");
+            score++;
+            $("#score").html(score);
+          }
+          score++;
+          $("#score").html(score);
+        }
+        if (result >= 41 && result <= 60) {
+          $("#result").html("<h2>ゴロ</h2>");
+          strike = 0;
+          ball = 0;
+          out++;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (out == 1) {
+            $("#o-ciecles1").css("background-color", "red");
+          }
+          if (out == 2) {
+            $("#o-ciecles2").css("background-color", "red");
+          }
+        }
+        if (result >= 61 && result <= 75) {
+          $("#result").html("<h2>フライ</h2>");
+          strike = 0;
+          ball = 0;
+          out++;
+          $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+          $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+            "background-color",
+            "",
+          );
+          if (out == 1) {
+            $("#o-ciecles1").css("background-color", "red");
+          }
+          if (out == 2) {
+            $("#o-ciecles2").css("background-color", "red");
+          }
+        }
+        if (result >= 76 && result <= 90) {
+          $("#result").html("<h2>空振り</h2>");
+          strike++;
+          if (strike == 1) {
+            $("#s-ciecles1").css("background-color", "yellow");
+          }
+          if (strike == 2) {
+            $("#s-ciecles2").css("background-color", "yellow");
+          }
+          if (strike == 3) {
+            $("#result").html('<h2 class="strikeout">三振</h2>');
+            strike = 0;
+            ball = 0;
+            out++;
+            $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+            $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+              "background-color",
+              "",
+            );
+
+            if (out == 1) {
+              $("#o-ciecles1").css("background-color", "red");
+            }
+            if (out == 2) {
+              $("#o-ciecles2").css("background-color", "red");
+            }
+          }
+        }
+
+        if (result >= 91 && result <= 100) {
+          $("#result").html("<h2>ファール</h2>");
+          if (strike < 2) {
+            strike++;
+          }
+
+          if (strike == 1) {
+            $("#s-ciecles1").css("background-color", "yellow");
+          }
+          if (strike == 2) {
+            $("#s-ciecles2").css("background-color", "yellow");
+          }
+        }
+        if (out == 3) {
+          if (out == 3) {
+            isPlayer = false;
+
+            $("#swing, #see").hide();
+
+            setTimeout(function () {
+              startPcAttack();
+            }, 1500);
+          }
+        }
+      });
+
+      $("#see").on("click", function () {
+        const randomresult = Math.random();
+        const result = Math.ceil(randomresult * 2);
+        if (out == 3 || isPlayer == false) {
+          return;
+        }
+
+        if (result == 1) {
+          $("#result").html("<h2>ストライク</h2>");
+          strike++;
+          if (strike == 1) {
+            $("#s-ciecles1").css("background-color", "yellow");
+          }
+          if (strike == 2) {
+            $("#s-ciecles2").css("background-color", "yellow");
+          }
+          if (strike == 3) {
+            $("#result").html('<h2 class="strikeout">三振</h2>');
+            strike = 0;
+            ball = 0;
+            out++;
+            $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+            $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+              "background-color",
+              "",
+            );
+
+            if (out == 1) {
+              $("#o-ciecles1").css("background-color", "red");
+            }
+            if (out == 2) {
+              $("#o-ciecles2").css("background-color", "red");
+            }
+          }
+        }
+        if (result == 2) {
+          $("#result").html("<h2>ボール</h2>");
+          ball++;
+
+          if (ball == 1) {
+            $("#b-ciecles1").css("background-color", "green");
+          }
+          if (ball == 2) {
+            $("#b-ciecles2").css("background-color", "green");
+          }
+          if (ball == 3) {
+            $("#b-ciecles3").css("background-color", "green");
+          }
+          if (ball == 4) {
+            $("#result").html("<h2>フォアボール</h2>");
+            ball = 0;
+            strike = 0;
+            $("#s-ciecles1, #s-ciecles2").css("background-color", "");
+            $("#b-ciecles1, #b-ciecles2, #b-ciecles3").css(
+              "background-color",
+              "",
+            );
+            if (first == true && second == true && third == true) {
+              score++;
+              $("#score").html("得点：" + score);
+            }
+            if (first == true && second == true) {
+              $("#third-base").css("background-color", "yellow");
+              third = true;
+            }
+            if (first == true) {
+              $("#second-base").css("background-color", "yellow");
+              second = true;
+            }
+            $("#first-base").css("background-color", "yellow");
+            first = true;
+          }
+        }
+        if (out == 3) {
+          if (out == 3) {
+            isPlayer = false;
+
+            $("#swing, #see").hide();
+
+            setTimeout(function () {
+              startPcAttack();
+            }, 1500);
+          }
+        }
+      });
+      $("#restart").on("click", function () {
+        location.reload();
+        $("#swing, #see").show();
+        $("#restart").hide();
+      });
+    </script>
+  </body>
+</html>
