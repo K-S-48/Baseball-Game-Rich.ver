@@ -1,3 +1,7 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+/* 枠線の太さも含めて、width や height の大きさにする */
 html {
   background-color: blanchedalmond;
   color: #292929;
@@ -80,13 +84,17 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 600px;
-  width: 600px;
+  width: 100%;
+  max-width: 600px;
+  aspect-ratio: 1/1;
   margin: 0 auto;
   position: relative;
   grid-row: 1/2;
   grid-column: 2/3;
 }
+/* width: 100%: 親（グリッドの列）の幅いっぱいに広がる。
+max-width: 600px: PCでは、これまでと同じ600pxより大きくなりらない。
+aspect-ratio: 1 / 1: 高さを幅と同じにする。幅が変わっても正方形のまま。 */
 .infield {
   height: 250px;
   width: 250px;
