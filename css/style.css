@@ -96,24 +96,27 @@ button {
 max-width: 600px: PCでは、これまでと同じ600pxより大きくなりらない。
 aspect-ratio: 1 / 1: 高さを幅と同じにする。幅が変わっても正方形のまま。 */
 .infield {
-  height: 250px;
-  width: 250px;
+  width: 41.67%;
+  /* 元の250pxを、盤面の600pxで割った値（250 ÷ 600）。盤面が縮むと、同じ割合で縮む。 */
+  aspect-ratio: 1/1;
   background: brown;
   position: absolute;
   transform: rotate(45deg);
   z-index: 1;
-  top: 281px;
+  top: 46.83%;
+  /* 281 ÷ 600。top の%は、親（.field）の高さが基準になる。 */
   border: 2px solid black;
   border-top: none;
   border-left: none;
 }
 .outfield {
-  height: 400px;
-  width: 400px;
+  width: 66.67%;
+  aspect-ratio: 1/1;
   background: green;
   position: absolute;
   transform: rotate(45deg);
-  border-radius: 125px 10px 0px 10px;
+  border-radius: 31.25% 2.5% 0 2.5%;
+  /* 角丸の%は、その要素自身の大きさが基準。そのため、土と違って600ではなく、芝の元の大きさ400で割る（125 ÷ 400 = 31.25%、10 ÷ 400 = 2.5%）。 */
 }
 #first-base,
 #second-base,
