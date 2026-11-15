@@ -20,6 +20,7 @@
       <div id="result"><h2>Play Ball!!</h2></div>
       <div class="game-container">
         <div class="controls">
+          <button id="pitch">投げる</button>
           <button id="swing">スイング</button>
           <button id="see">見送る</button>
           <button id="restart">もう一度プレーする</button>
@@ -32,6 +33,7 @@
           <div id="third-base"></div>
           <div id="home-base"></div>
           <div class="pitcher"></div>
+          <div id="ball"></div>
         </div>
         <div class="scoreboard">
           <div id="inning">1回表</div>
@@ -496,6 +498,25 @@
             }, 1500);
           }
         }
+      });
+      let isPitching = false;
+      //「今ボールが飛んでいるか」を覚えておく変数。
+
+      $("#pitch").on("click", function () {
+        if (isPitching || !isPlayer) {
+          return;
+        }
+        // ボールが飛んでいる最中や、PCの攻撃中（isPlayer が false）は、何もせずに終わる。連打して、ボールが何個も同時に動くのを防ぐ。! は「ではない」という意味。
+        isPitching = true;
+
+        $("#ball").css("top", "64%");
+        // 動かす前に、スタート位置へ戻す。
+        $("#ball").animate({ top: "95%" }, 800, "linear", function () {
+          $("#ball").css("top", "64%");
+          // 800ミリ秒かけて、top を88%まで少しずつ変える。"linear" は、速さを一定にする指定。最後の関数は、動き終わったときに実行される。
+          isPitching = false;
+          // ボールをスタート位置に戻して、isPitching を false にする。
+        });
       });
       $("#restart").on("click", function () {
         location.reload();

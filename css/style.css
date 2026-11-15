@@ -56,10 +56,15 @@ button {
   align-items: center;
   justify-content: center;
 }
+#pitch {
+  background-color: #c9d6a3;
+  border: 2px solid #8fa35f;
+}
 #swing {
   background-color: #d9827c;
   border: 2px solid #b85f59;
 }
+#pitch:hover,
 #swing:hover,
 #see:hover,
 #restart:hover {
@@ -78,6 +83,7 @@ button {
   background-color: #a8c69f;
   border: 2px solid #779d70;
 }
+#pitch:active,
 #swing:active,
 #see:active,
 #restart:active {
@@ -166,6 +172,22 @@ aspect-ratio: 1 / 1: 高さを幅と同じにする。幅が変わっても正�
   z-index: 2;
   top: 65.83%;
   border: 2px solid black;
+}
+#ball {
+  position: absolute;
+  z-index: 3;
+  /* 土やベースより手前に出す。 */
+  width: 3%;
+  /* 盤面の幅の3%（600pxなら約18px）。盤面が縮むと、ボールも縮む。 */
+  aspect-ratio: 1/1;
+  border-radius: 50%;
+  background: white;
+  border: 2px solid #b33;
+  left: 50%;
+  transform: translateX(-50%);
+  /* left: 50% と translateX(-50%): left: 50% だけだと、ボールの左端が中央に来る。translateX(-50%) で自分の幅の半分だけ左に戻して、ボールの中心を盤面の中央に合わせる。 */
+  top: 64%;
+  /* 投手板（top: 65.83%）の少し上。 */
 }
 .scoreboard {
   grid-row: 1/2;
