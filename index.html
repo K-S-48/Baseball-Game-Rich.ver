@@ -22,7 +22,6 @@
         <div class="controls">
           <button id="pitch">投げる</button>
           <button id="swing">スイング</button>
-          <button id="see">見送る</button>
           <button id="restart">もう一度プレーする</button>
         </div>
         <div class="field">
@@ -98,7 +97,7 @@
 
         $("#inning").html(inning + "回裏");
         $("#result").html("<h2>PCの攻撃！</h2>");
-        $("#swing, #see").hide();
+        $("#pitch, #swing").hide();
 
         let pcFirst = false;
         let pcSecond = false;
@@ -191,13 +190,23 @@
 
               $("#inning").html(inning + "回表");
               $("#result").html("<h2>YOUR TURN!</h2>");
-              $("#swing, #see").show();
+              $("#pitch, #swing").show();
             }, 1500);
           }
         }, 1000);
       }
 
-      $("#swing").on("click", function () {
+      $("#swing").on("pointerdown", function () {
+        console.log(
+          "isPitching:",
+          isPitching,
+          "hasSwung:",
+          hasSwung,
+          "out:",
+          out,
+          "isPlayer:",
+          isPlayer,
+        );
         if (!isPitching || hasSwung) {
           return;
         }
@@ -205,9 +214,13 @@
           return;
         }
         hasSwung = true;
-        console.log("ballProgress:", ballProgress);
         const result = getResultNumber(ballProgress);
-
+        $("#ball").stop(true);
+        // 動いているアニメーションを、その場で止める。true は、予約されている動きも消すという意味。
+        ballProgress = 0;
+        $("#ball").css("top", "64%");
+        isPitching = false;
+        hasSwung = false;
         if (result >= 1 && result <= 20) {
           $("#result").html('<h2 class="one">ヒット</h2>');
           strike = 0;
@@ -409,7 +422,7 @@
           if (out == 3) {
             isPlayer = false;
 
-            $("#swing, #see").hide();
+            $("#pitch, #swing").hide();
 
             setTimeout(function () {
               startPcAttack();
@@ -418,7 +431,7 @@
         }
       });
 
-      $("#see").on("click", function () {
+      function judgeTake() {
         const randomresult = Math.random();
         const result = Math.ceil(randomresult * 2);
         if (out == 3 || isPlayer == false) {
@@ -495,14 +508,14 @@
           if (out == 3) {
             isPlayer = false;
 
-            $("#swing, #see").hide();
+            $("#pitch, #swing").hide();
 
             setTimeout(function () {
               startPcAttack();
             }, 1500);
           }
         }
-      });
+      }
       let isPitching = false;
       //「今ボールが飛んでいるか」を覚えておく変数。
       let ballProgress = 0;
@@ -529,10 +542,11 @@
         }
         // ボールが飛んでいる最中や、PCの攻撃中（isPlayer が false）は、何もせずに終わる。連打して、ボールが何個も同時に動くのを防ぐ。! は「ではない」という意味。
         isPitching = true;
-
+        hasSwung = false;
+        ballProgress = 0;
         $("#ball").css("top", "64%");
         // 動かす前に、スタート位置へ戻す。
-        ballProgress = 0;
+
         $("#ball").animate(
           { top: "105%" },
           {
@@ -542,18 +556,22 @@
               ballProgress = progress;
             },
             complete: function () {
+              const swung = hasSwung;
               ballProgress = 0;
               hasSwung = false;
               $("#ball").css("top", "64%");
               isPitching = false;
               // ボールをスタート位置に戻して、isPitching を false にする。
+              if (!swung) {
+                judgeTake();
+              }
             },
           },
         );
       });
       $("#restart").on("click", function () {
         location.reload();
-        $("#swing, #see").show();
+        $("#pitch, #swing").show();
         $("#restart").hide();
       });
     </script>
