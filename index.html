@@ -103,8 +103,19 @@
         let pcSecond = false;
         let pcThird = false;
 
-        const timer = setInterval(function () {
+        function pcPitch() {
+          const pitch =
+            pitchTypes[Math.floor(Math.random() * pitchTypes.length)];
+          $("#ball").css({ top: "64%", left: "50%" });
+          $("#ball").animate(
+            { top: "95%" },
+            { duration: pitch.duration, easing: "linear", complete: pcResult },
+          );
+        }
+
+        function pcResult() {
           const result = Math.ceil(Math.random() * 100);
+          let flyNumber = result;
 
           if (result <= 20) {
             $("#result").html("<h2>PC：ヒット！</h2>");
@@ -148,6 +159,7 @@
             pcSecond = false;
             pcThird = false;
           } else {
+            flyNumber = pick(41, 75);
             out++;
 
             $("#result").html("<h2>PC：アウト！ " + out + "アウト</h2>");
@@ -162,38 +174,44 @@
           }
 
           $("#pc-score").html(pcScore);
+          flyBall(flyNumber);
 
           if (out == 3) {
-            clearInterval(timer);
-            setTimeout(function () {
-              if (inning == 3) {
-                if (score > pcScore) {
-                  $("#result").html('<h2 class="win">YOU WIN!!</h2>');
-                  confetti({
-                    particleCount: 150,
-                    spread: 100,
-                    origin: { y: 0.6 },
-                  });
-                } else if (score == pcScore) {
-                  $("#result").html("<h2>DRAW!</h2>");
-                } else {
-                  $("#result").html("<h2>YOU LOSE...</h2>");
-                }
-
-                $("#restart").show();
-                return;
-              }
-
-              inning++;
-              isPlayer = true;
-              resetCount();
-
-              $("#inning").html(inning + "回表");
-              $("#result").html("<h2>YOUR TURN!</h2>");
-              $("#pitch, #swing").show();
-            }, 1500);
+            setTimeout(endPcInning, 1500);
+          } else {
+            setTimeout(pcPitch, 1500);
           }
-        }, 1000);
+        }
+
+        function endPcInning() {
+          if (inning == 3) {
+            if (score > pcScore) {
+              $("#result").html('<h2 class="win">YOU WIN!!</h2>');
+              confetti({
+                particleCount: 150,
+                spread: 100,
+                origin: { y: 0.6 },
+              });
+            } else if (score == pcScore) {
+              $("#result").html("<h2>DRAW!</h2>");
+            } else {
+              $("#result").html("<h2>YOU LOSE...</h2>");
+            }
+
+            $("#restart").show();
+            return;
+          }
+
+          inning++;
+          isPlayer = true;
+          resetCount();
+
+          $("#inning").html(inning + "回表");
+          $("#result").html("<h2>YOUR TURN!</h2>");
+          $("#pitch, #swing").show();
+        }
+
+        setTimeout(pcPitch, 1000);
       }
 
       $("#swing").on("pointerdown", function () {
