@@ -198,12 +198,15 @@
       }
 
       $("#swing").on("click", function () {
-        console.log("ballProgress:", ballProgress);
-        const randomresult = Math.random();
-        const result = Math.ceil(randomresult * 100);
+        if (!isPitching || hasSwung) {
+          return;
+        }
         if (out == 3 || isPlayer == false) {
           return;
         }
+        hasSwung = true;
+        console.log("ballProgress:", ballProgress);
+        const result = getResultNumber(ballProgress);
 
         if (result >= 1 && result <= 20) {
           $("#result").html('<h2 class="one">ヒット</h2>');
@@ -504,6 +507,22 @@
       //「今ボールが飛んでいるか」を覚えておく変数。
       let ballProgress = 0;
       // ボールの進み具合を覚えておく変数。投げ始めが 0、ホームに着く瞬間が 1 。
+      let hasSwung = false;
+      function pick(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+      }
+      // min 以上 max 以下の整数を、ランダムに返す。Math.random() を使う定番の書き方。
+      const SWEET_SPOT = 0.85;
+      function getResultNumber(progress) {
+        const d = Math.abs(progress - SWEET_SPOT);
+        console.log("progress:", progress, "SWEET_SPOT:", SWEET_SPOT, "d:", d);
+        // ボールが到着する位置（1）から、どれだけずれているか。Math.abs で、マイナスをプラスする。
+        if (d <= 0.03) return pick(34, 40);
+        if (d <= 0.05) return pick(21, 33);
+        if (d <= 0.1) return pick(1, 20);
+        if (d <= 0.15) return pick(41, 75);
+        return pick(76, 100);
+      }
       $("#pitch").on("click", function () {
         if (isPitching || !isPlayer) {
           return;
@@ -515,7 +534,7 @@
         // 動かす前に、スタート位置へ戻す。
         ballProgress = 0;
         $("#ball").animate(
-          { top: "95%" },
+          { top: "105%" },
           {
             duration: 800,
             easing: "linear",
@@ -524,6 +543,7 @@
             },
             complete: function () {
               ballProgress = 0;
+              hasSwung = false;
               $("#ball").css("top", "64%");
               isPitching = false;
               // ボールをスタート位置に戻して、isPitching を false にする。
