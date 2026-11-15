@@ -103,6 +103,11 @@
         let pcSecond = false;
         let pcThird = false;
 
+        function showPcBases() {
+          $("#first-base").css("background-color", pcFirst ? "yellow" : "");
+          $("#second-base").css("background-color", pcSecond ? "yellow" : "");
+          $("#third-base").css("background-color", pcThird ? "yellow" : "");
+        }
         function pcPitch() {
           const pitch =
             pitchTypes[Math.floor(Math.random() * pitchTypes.length)];
@@ -174,6 +179,7 @@
           }
 
           $("#pc-score").html(pcScore);
+          showPcBases();
           flyBall(flyNumber);
 
           if (out == 3) {
@@ -184,6 +190,10 @@
         }
 
         function endPcInning() {
+          pcFirst = false;
+          pcSecond = false;
+          pcThird = false;
+          showPcBases();
           if (inning == 3) {
             if (score > pcScore) {
               $("#result").html('<h2 class="win">YOU WIN!!</h2>');
