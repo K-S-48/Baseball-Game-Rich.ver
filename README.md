@@ -5,7 +5,7 @@ Baseball Game Rich.ver
 - 課題2で提出した簡易的な野球盤に動きを付けました。
 
 ## ③アプリのデプロイURL
-デプロイしている場合はURLを記入（任意）
+https://k-s-48.github.io/Baseball-Game-Rich.ver/
 
 ## ④アプリのログイン用IDまたはPassword（ある場合）
 - ID: なし
