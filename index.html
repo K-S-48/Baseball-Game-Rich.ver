@@ -219,8 +219,8 @@
         // 動いているアニメーションを、その場で止める。true は、予約されている動きも消すという意味。
         ballProgress = 0;
         $("#ball").css("top", "64%");
-        isPitching = false;
-        hasSwung = false;
+        ballProgress = 0;
+        flyBall(result);
         if (result >= 1 && result <= 20) {
           $("#result").html('<h2 class="one">ヒット</h2>');
           strike = 0;
@@ -540,6 +540,47 @@
         if (d <= 0.1) return pick(1, 20);
         if (d <= 0.15) return pick(41, 75);
         return pick(76, 100);
+      }
+      function resetBall() {
+        $("#ball").css({ top: "64%", left: "50%" });
+        isPitching = false;
+        hasSwung = false;
+      }
+
+      function flyBall(result) {
+        let top;
+        let left;
+
+        if (result <= 20) {
+          top = "45%"; // ヒット
+          left = pick(25, 75) + "%";
+        } else if (result <= 30) {
+          top = "25%"; // ツーベース
+          left = pick(20, 80) + "%";
+        } else if (result <= 33) {
+          top = "15%"; // スリーベース
+          left = pick(20, 80) + "%";
+        } else if (result <= 40) {
+          top = "3%"; // ホームラン
+          left = pick(30, 70) + "%";
+        } else if (result <= 60) {
+          top = "55%"; // ゴロ
+          left = pick(25, 75) + "%";
+        } else if (result <= 75) {
+          top = "35%"; // フライ
+          left = pick(25, 75) + "%";
+        } else if (result <= 90) {
+          resetBall(); // 空振りは飛ばない
+          return;
+        } else {
+          top = "80%"; // ファウル
+          left = pick(0, 1) === 0 ? "5%" : "95%";
+        }
+
+        $("#ball").animate(
+          { top: top, left: left },
+          { duration: 700, easing: "linear", complete: resetBall },
+        );
       }
       $("#pitch").on("click", function () {
         if (isPitching || !isPlayer) {
