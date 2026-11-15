@@ -198,6 +198,7 @@
       }
 
       $("#swing").on("click", function () {
+        console.log("ballProgress:", ballProgress);
         const randomresult = Math.random();
         const result = Math.ceil(randomresult * 100);
         if (out == 3 || isPlayer == false) {
@@ -501,7 +502,8 @@
       });
       let isPitching = false;
       //「今ボールが飛んでいるか」を覚えておく変数。
-
+      let ballProgress = 0;
+      // ボールの進み具合を覚えておく変数。投げ始めが 0、ホームに着く瞬間が 1 。
       $("#pitch").on("click", function () {
         if (isPitching || !isPlayer) {
           return;
@@ -511,12 +513,23 @@
 
         $("#ball").css("top", "64%");
         // 動かす前に、スタート位置へ戻す。
-        $("#ball").animate({ top: "95%" }, 800, "linear", function () {
-          $("#ball").css("top", "64%");
-          // 800ミリ秒かけて、top を88%まで少しずつ変える。"linear" は、速さを一定にする指定。最後の関数は、動き終わったときに実行される。
-          isPitching = false;
-          // ボールをスタート位置に戻して、isPitching を false にする。
-        });
+        ballProgress = 0;
+        $("#ball").animate(
+          { top: "95%" },
+          {
+            duration: 800,
+            easing: "linear",
+            progress: function (animation, progress) {
+              ballProgress = progress;
+            },
+            complete: function () {
+              ballProgress = 0;
+              $("#ball").css("top", "64%");
+              isPitching = false;
+              // ボールをスタート位置に戻して、isPitching を false にする。
+            },
+          },
+        );
       });
       $("#restart").on("click", function () {
         location.reload();
