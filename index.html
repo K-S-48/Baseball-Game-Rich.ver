@@ -521,6 +521,11 @@
       let ballProgress = 0;
       // ボールの進み具合を覚えておく変数。投げ始めが 0、ホームに着く瞬間が 1 。
       let hasSwung = false;
+      const pitchTypes = [
+        { name: "スローボール", duration: 1400 },
+        { name: "ストレート", duration: 800 },
+        { name: "速球", duration: 600 },
+      ];
       function pick(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
       }
@@ -544,13 +549,14 @@
         isPitching = true;
         hasSwung = false;
         ballProgress = 0;
+        const pitch = pitchTypes[Math.floor(Math.random() * pitchTypes.length)];
         $("#ball").css("top", "64%");
         // 動かす前に、スタート位置へ戻す。
 
         $("#ball").animate(
           { top: "105%" },
           {
-            duration: 800,
+            duration: pitch.duration,
             easing: "linear",
             progress: function (animation, progress) {
               ballProgress = progress;
